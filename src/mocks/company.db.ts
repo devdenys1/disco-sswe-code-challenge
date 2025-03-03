@@ -44,7 +44,7 @@ export class CompanyDB {
     });
   }
 
-  getCompanyCompanyCollection(): Collection<Company> {
+  getCompanyCollection(): Collection<Company> {
     return this.db.getCollection('companies');
   }
 

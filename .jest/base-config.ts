@@ -10,5 +10,8 @@ export const baseConfig: Config = {
   collectCoverage: true,
   reporters: ['default', 'jest-junit'],
   coverageReporters: ['text', 'lcov', 'cobertura'],
-  collectCoverageFrom: ['src/**/*.ts']
+  collectCoverageFrom: ['src/**/*.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
 };

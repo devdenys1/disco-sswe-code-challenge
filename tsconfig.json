@@ -13,7 +13,10 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "importHelpers": true,
-    "strict": true
+    "strict": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts"]
 }
