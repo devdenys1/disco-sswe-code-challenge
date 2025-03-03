@@ -1,0 +1,44 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.eslint.json",
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "env": {
+    "node": true
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "max-len": [
+      "warn",
+      {
+        "code": 180
+      }
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "quotes": [
+      "error",
+      "single"
+    ],
+    "keyword-spacing": [
+      "error",
+      {
+        "after": true
+      }
+    ],
+    "no-trailing-spaces": [ "error" ]
+  }
+}
