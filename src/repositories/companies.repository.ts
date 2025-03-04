@@ -30,4 +30,10 @@ export class CompaniesRepository implements ICompaniesRepository {
     }
     return this.mapToDTO(company);
   }
+
+  async getCompanyByName(name: string): Promise<CompanyDTO | undefined> {
+    const companiesCollection = this.companyDB.getCompanyCollection();
+    const company = companiesCollection.findOne({ name });
+    return company ? this.mapToDTO(company) : undefined;
+  }
 }

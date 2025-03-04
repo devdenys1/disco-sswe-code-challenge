@@ -1,9 +1,8 @@
 import { container } from 'tsyringe';
 
-import { CompaniesRepository } from '@/repositories/companies.repository'; // Adjust path
-import { CompanyDB } from '@/mocks/company.db'; // Adjust path
-// import { CompanyDTO } from '../types/companies.types'; // Adjust path
-import { Company } from '@/repositories/company.model'; // Adjust path
+import { CompaniesRepository } from '@/repositories/companies.repository';
+import { CompanyDB } from '@/mocks/company.db';
+import { Company } from '@/repositories/company.model';
 
 describe('CompaniesRepository', () => {
   let repository: CompaniesRepository;
@@ -92,6 +91,32 @@ describe('CompaniesRepository', () => {
       expect(result).toBeUndefined();
       expect(mockCompanyDB.getCompanyById).toHaveBeenCalledWith('');
       expect(mockCompanyDB.getCompanyById).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getCompanyByName', () => {
+    it('should return a CompanyDTO for a valid company name', async () => {
+      const mockCollection = {
+        findOne: jest.fn().mockReturnValue(mockCompanies[0]),
+      };
+      mockCompanyDB.getCompanyCollection.mockReturnValue(mockCollection as any);
+      const result = await repository.getCompanyByName('ACCELERATE SHIPPING');
+      expect(result).toEqual({ id: '1', name: 'ACCELERATE SHIPPING' });
+      expect(mockCollection.findOne).toHaveBeenCalledWith({
+        name: 'ACCELERATE SHIPPING',
+      });
+    });
+
+    it('should return undefined for a non-existent company name', async () => {
+      const mockCollection = {
+        findOne: jest.fn().mockReturnValue(null),
+      };
+      mockCompanyDB.getCompanyCollection.mockReturnValue(mockCollection as any);
+      const result = await repository.getCompanyByName('NONEXISTENT');
+      expect(result).toBeUndefined();
+      expect(mockCollection.findOne).toHaveBeenCalledWith({
+        name: 'NONEXISTENT',
+      });
     });
   });
 });
