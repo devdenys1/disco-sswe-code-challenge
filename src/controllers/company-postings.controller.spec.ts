@@ -51,7 +51,7 @@ describe('CompanyPostingsController', () => {
     });
 
     it('should return 500 on service error', async () => {
-      mockService.getPostings.mockRejectedValue(new Error('Service failure'));
+      mockService.getPostings.mockRejectedValue(new Error('Unexpected error'));
       const req = { query: {} } as any;
       const res = {
         status: jest.fn().mockReturnThis(),
@@ -61,7 +61,7 @@ describe('CompanyPostingsController', () => {
       await controller.get(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Service failure' });
+      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
   });
 

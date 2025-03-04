@@ -3,7 +3,8 @@ import { baseConfig } from './base-config';
 
 const config: Config = {
   ...baseConfig,
-  roots: ['src']
+  roots: ['<rootDir>/src/integration'],
+  testMatch: ['**/*.integration.spec.ts'],
 };
 
 export default config;

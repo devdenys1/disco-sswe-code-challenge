@@ -28,9 +28,7 @@ export class CompanyPostingsController {
       res.status(200).json(postings);
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 
@@ -42,7 +40,6 @@ export class CompanyPostingsController {
       await this.service.createPosting(data);
       res.status(201).send();
     } catch (error) {
-      console.error(error);
       if (error instanceof z.ZodError) {
         res
           .status(400)
@@ -50,6 +47,7 @@ export class CompanyPostingsController {
       } else if (error instanceof NotFoundError) {
         res.status(404).json({ error: error.message });
       } else {
+        console.error(error);
         res.status(500).json({ error: 'Internal server error' });
       }
     }

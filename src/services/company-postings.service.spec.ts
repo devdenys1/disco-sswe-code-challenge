@@ -107,7 +107,7 @@ describe('CompanyPostingsService', () => {
         id: '1',
         name: 'ACCELERATE SHIPPING',
       });
-      mockAxios.onPost('/posting').reply(200);
+      mockAxios.onPost(config.postingApiUrl).reply(200);
 
       const data = {
         companyName: 'ACCELERATE SHIPPING',
