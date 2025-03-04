@@ -2,6 +2,7 @@ import { container } from 'tsyringe';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
+import { config } from '@/config';
 import { CompanyPostingsService } from '@/services/company-postings.service';
 import { ICompaniesRepository } from '@/types/companies.types';
 import { PostingDTO } from '@/types/company-postings.types';
@@ -53,7 +54,9 @@ describe('CompanyPostingsService', () => {
 
   describe('getPostings', () => {
     it('should return filtered postings with company names', async () => {
-      mockAxios.onGet('/postings').reply(200, { postings: mockPostings });
+      mockAxios
+        .onGet(config.postingApiUrl)
+        .reply(200, { postings: mockPostings });
       mockCompaniesRepo.getCompanyById
         .mockResolvedValueOnce({ id: '1', name: 'ACCELERATE SHIPPING' })
         .mockResolvedValueOnce({ id: '2', name: 'BARTER SHIPPING' });
@@ -72,7 +75,9 @@ describe('CompanyPostingsService', () => {
     });
 
     it('should handle empty filters', async () => {
-      mockAxios.onGet('/postings').reply(200, { postings: mockPostings });
+      mockAxios
+        .onGet(config.postingApiUrl)
+        .reply(200, { postings: mockPostings });
       mockCompaniesRepo.getCompanyById
         .mockResolvedValueOnce({ id: '1', name: 'ACCELERATE SHIPPING' })
         .mockResolvedValueOnce({ id: '2', name: 'BARTER SHIPPING' });
@@ -85,7 +90,9 @@ describe('CompanyPostingsService', () => {
     });
 
     it('should use N/A for missing company', async () => {
-      mockAxios.onGet('/postings').reply(200, { postings: [mockPostings[0]] });
+      mockAxios
+        .onGet(config.postingApiUrl)
+        .reply(200, { postings: [mockPostings[0]] });
       mockCompaniesRepo.getCompanyById.mockResolvedValueOnce(undefined);
 
       const result = await service.getPostings({ filters: {} });

@@ -1,6 +1,8 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
+import { config } from '@/config';
+
 // This is a Mock API Server
 const createApiMockServer = function () {
   const postingsData = [
@@ -3812,12 +3814,12 @@ const createApiMockServer = function () {
   const mock = new MockAdapter(axios);
 
   // GET all postings
-  mock.onGet('/postings').reply(200, {
+  mock.onGet(config.postingApiUrl).reply(200, {
     postings: postingsData,
   });
 
   // POST: adds a new posting
-  mock.onPost('/posting').reply(function (config) {
+  mock.onPost(config.postingApiUrl).reply(function (config) {
     postingsData.push(JSON.parse(config.data));
     return [200];
   });

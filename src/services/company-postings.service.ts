@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import axios from 'axios';
 
+import { config } from '@/config';
 import {
   ICompanyPostingsService,
   CompanyPostingDTO,
@@ -20,7 +21,7 @@ export class CompanyPostingsService implements ICompanyPostingsService {
   async getPostings(data: GetCompanyPostingsDTO): Promise<CompanyPostingDTO[]> {
     const {
       data: { postings },
-    } = await axios.get<{ postings: PostingDTO[] }>('/postings');
+    } = await axios.get<{ postings: PostingDTO[] }>(config.postingApiUrl);
 
     const filtered = postings.filter((posting) => {
       const matchesEquipment =
