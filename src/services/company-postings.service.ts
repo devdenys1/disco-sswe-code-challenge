@@ -11,6 +11,8 @@ import {
 } from '@/types/company-postings.types';
 import { ICompaniesRepository } from '@/types/companies.types';
 
+import { NotFoundError } from './company-postings.errors';
+
 @injectable()
 export class CompanyPostingsService implements ICompanyPostingsService {
   constructor(
@@ -43,7 +45,12 @@ export class CompanyPostingsService implements ICompanyPostingsService {
 
         return {
           companyName: company?.name ?? 'N/A',
-          freight: posting.freight,
+          freight: {
+            weightPounds: posting.freight.weightPounds,
+            equipmentType: posting.freight.equipmentType,
+            fullPartial: posting.freight.fullPartial,
+            lengthFeet: posting.freight.lengthFeet,
+          },
         };
       })
     );
@@ -55,14 +62,14 @@ export class CompanyPostingsService implements ICompanyPostingsService {
     );
 
     if (!company) {
-      throw new Error(`Company not found: ${data.companyName}`);
+      throw new NotFoundError(`Company not found: ${data.companyName}`);
     }
 
-    const postingData: Partial<PostingDTO> = {
+    const postingData: PostingDTO = {
       companyId: company.id,
       freight: data.freight,
     };
 
-    await axios.post('/posting', postingData);
+    await axios.post(config.postingApiUrl, postingData);
   }
 }

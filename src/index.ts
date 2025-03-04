@@ -1,30 +1,44 @@
+import 'reflect-metadata';
+import { container } from 'tsyringe';
+import express, { Express } from 'express';
+
 import { config } from '@/config';
+import postingAPIServer from '@/mocks/posting-api-mock-server';
+import { CompanyDB } from '@/mocks/company.db';
+import { CompaniesRepository } from '@/repositories/companies.repository';
+import { CompanyPostingsService } from '@/services/company-postings.service';
+import { CompanyPostingsController } from '@/controllers/company-postings.controller';
 
-import express, { Express, Request, Response } from 'express';
-import postingAPIServer from './mocks/posting-api-mock-server';
-import { CompanyDB } from './mocks/company.db';
-import { Company } from './repositories/company.model';
-import { CompanyPostingsController } from './controllers/company-postings.controller';
-import { CompanyPostingsService } from './services/company-postings.service';
-
-// Start the mock Posting API server
 if (!config.isProduction) {
+  console.log('Starting mock Posting API server');
   postingAPIServer();
 }
 
+container.register('CompanyDB', { useClass: CompanyDB });
+container.register('ICompaniesRepository', { useClass: CompaniesRepository });
+container.register('ICompanyPostingsService', {
+  useClass: CompanyPostingsService,
+});
+
+const companyPostingsController = container.resolve(CompanyPostingsController);
+
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = config.port;
 const companyPostingsRouter = express.Router();
 
-const companyDB = new CompanyDB();
-const companyPostingsService = new CompanyPostingsService(companyDB);
-const companyPostingsController = new CompanyPostingsController(
-  companyPostingsService
+app.use(express.json());
+
+companyPostingsRouter.get(
+  '/company-postings',
+  companyPostingsController.get.bind(companyPostingsController)
 );
 
-app.use(express.json());
-companyPostingsRouter.get('/company-postings', companyPostingsController.get);
-companyPostingsRouter.post('/company-postings', companyPostingsController.post);
+companyPostingsRouter.post(
+  '/company-postings',
+  companyPostingsController.post.bind(companyPostingsController)
+);
+
+app.use('/api', companyPostingsRouter);
 
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

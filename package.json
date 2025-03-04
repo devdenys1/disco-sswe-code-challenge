@@ -7,13 +7,13 @@
   "main": "src/index.ts",
   "scripts": {
     "pretranspile": "npm run lint",
-    "transpile": "tsc",
+    "transpile": "tsc && tsc-alias -p tsconfig.json",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "posttranspile": "copyfiles package.json build; ln -fs build/dist dist",
     "build": "npm run clean && npm run transpile",
     "clean": "rm -rf dist build",
     "start": "npm run clean && npm run transpile && node dist/index.js",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
+    "dev": "concurrently \"npx tsc --watch\" \"tsc-alias -p tsconfig.json --watch --dir build/dist\" \"nodemon -q --delay 2 build/dist/index.js\"",
     "test": "npm run test:unit",
     "test:unit": "JEST_JUNIT_OUTPUT_DIR=build/reports/unit npx jest --config=.jest/unit-config.ts --coverage --coverageDirectory ./build/reports/unit/coverage --colors",
     "test:integration": "JEST_JUNIT_OUTPUT_DIR=build/reports/integration npx jest --config=.jest/integration-config.ts integration --coverage --coverageDirectory build/reports/integration/coverage --colors  --runInBand --detectOpenHandles"
@@ -24,9 +24,11 @@
     "axios-mock-adapter": "1.22.0",
     "dotenv": "16.4.5",
     "express": "4.19.2",
+    "jest-mock-extended": "^4.0.0-beta1",
     "lokijs": "1.5.12",
     "reflect-metadata": "0.2.2",
     "source-map-support": "0.5.21",
+    "tsc-alias": "^1.8.11",
     "tsyringe": "^4.8.0",
     "zod": "^3.24.1"
   },
@@ -50,7 +52,7 @@
   },
   "nyc": {
     "include": [
-      "dist/**/*.js",
+      "build/dist/**/*.js",
       "src/**/*.ts"
     ],
     "reporter": [
