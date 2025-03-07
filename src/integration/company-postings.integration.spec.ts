@@ -5,6 +5,7 @@ import express from 'express';
 import { CompanyPostingsController } from '@/controllers/company-postings.controller';
 import { CompanyPostingsService } from '@/services/company-postings.service';
 import { CompaniesRepository } from '@/repositories/companies.repository';
+import { PostingsRepository } from '@/repositories/postings.repository';
 import { CompanyDB } from '@/mocks/company.db';
 import postingAPIServer from '@/mocks/posting-api-mock-server';
 import { TOKENS } from '@/injection-tokens';
@@ -19,6 +20,9 @@ describe('CompanyPostings API Integration', () => {
     container.register(TOKENS.CompanyDB, { useClass: CompanyDB });
     container.register(TOKENS.ICompaniesRepository, {
       useClass: CompaniesRepository,
+    });
+    container.register(TOKENS.IPostingsRepository, {
+      useClass: PostingsRepository,
     });
     container.register(TOKENS.ICompanyPostingsService, {
       useClass: CompanyPostingsService,

@@ -6,6 +6,7 @@ import { config } from '@/config';
 import postingAPIServer from '@/mocks/posting-api-mock-server';
 import { CompanyDB } from '@/mocks/company.db';
 import { CompaniesRepository } from '@/repositories/companies.repository';
+import { PostingsRepository } from '@/repositories/postings.repository';
 import { CompanyPostingsService } from '@/services/company-postings.service';
 import { CompanyPostingsController } from '@/controllers/company-postings.controller';
 
@@ -19,6 +20,9 @@ if (!config.isProduction) {
 container.register(TOKENS.CompanyDB, { useClass: CompanyDB });
 container.register(TOKENS.ICompaniesRepository, {
   useClass: CompaniesRepository,
+});
+container.register(TOKENS.IPostingsRepository, {
+  useClass: PostingsRepository,
 });
 container.register(TOKENS.ICompanyPostingsService, {
   useClass: CompanyPostingsService,

@@ -7,3 +7,13 @@ export interface Posting {
     lengthFeet: number;
   };
 }
+
+export interface PostingCreateInput {
+  companyId: string;
+  freight: {
+    weightPounds: number;
+    equipmentType: string;
+    fullPartial: string;
+    lengthFeet: number;
+  };
+}

@@ -1,16 +1,15 @@
 import { injectable, inject } from 'tsyringe';
-import axios from 'axios';
 
-import { config } from '@/config';
 import { TOKENS } from '@/injection-tokens';
 import {
   CompanyPosting,
   CompanyPostingFilters,
   CompanyPostingCreateInput,
 } from '@/domain/company-postings.domain';
-import { Posting } from '@/domain/postings.domain';
+import { PostingCreateInput } from '@/domain/postings.domain';
 import { ICompanyPostingsService } from '@/interfaces/company-postings.interfaces';
 import { ICompaniesRepository } from '@/interfaces/companies.interfaces';
+import { IPostingsRepository } from '@/interfaces/postings.interfaces';
 
 import { NotFoundError } from './company-postings.errors';
 
@@ -18,13 +17,13 @@ import { NotFoundError } from './company-postings.errors';
 export class CompanyPostingsService implements ICompanyPostingsService {
   constructor(
     @inject(TOKENS.ICompaniesRepository)
-    private companiesRepository: ICompaniesRepository
+    private companiesRepository: ICompaniesRepository,
+    @inject(TOKENS.IPostingsRepository)
+    private postingsRepository: IPostingsRepository
   ) {}
 
   async getPostings(filters: CompanyPostingFilters): Promise<CompanyPosting[]> {
-    const {
-      data: { postings },
-    } = await axios.get<{ postings: Posting[] }>(config.postingApiUrl);
+    const postings = await this.postingsRepository.getPostings();
 
     const filtered = postings.filter((posting) => {
       const matchesEquipment =
@@ -66,11 +65,16 @@ export class CompanyPostingsService implements ICompanyPostingsService {
       throw new NotFoundError(`Company not found: ${data.companyName}`);
     }
 
-    const postingData: Posting = {
+    const postingCreateInput: PostingCreateInput = {
       companyId: company.id,
-      freight: data.freight,
+      freight: {
+        weightPounds: data.freight.weightPounds,
+        equipmentType: data.freight.equipmentType,
+        fullPartial: data.freight.fullPartial,
+        lengthFeet: data.freight.lengthFeet,
+      },
     };
 
-    await axios.post(config.postingApiUrl, postingData);
+    await this.postingsRepository.createPosting(postingCreateInput);
   }
 }

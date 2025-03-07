@@ -1,17 +1,19 @@
 import { container } from 'tsyringe';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
 
-import { config } from '@/config';
 import { CompanyPostingsService } from '@/services/company-postings.service';
-import { Posting } from '@/domain/postings.domain';
 import { ICompaniesRepository } from '@/interfaces/companies.interfaces';
+import { IPostingsRepository } from '@/interfaces/postings.interfaces';
 import { TOKENS } from '@/injection-tokens';
+import { Posting } from '@/domain/postings.domain';
+import {
+  CompanyPosting,
+  CompanyPostingCreateInput,
+} from '@/domain/company-postings.domain';
 
 describe('CompanyPostingsService', () => {
   let service: CompanyPostingsService;
-  let mockAxios: MockAdapter;
   let mockCompaniesRepo: jest.Mocked<ICompaniesRepository>;
+  let mockPostingsRepo: jest.Mocked<IPostingsRepository>;
 
   const mockPostings: Posting[] = [
     {
@@ -36,7 +38,7 @@ describe('CompanyPostingsService', () => {
 
   beforeEach(() => {
     container.clearInstances();
-    mockAxios = new MockAdapter(axios);
+
     mockCompaniesRepo = {
       getCompanyById: jest.fn(),
       getCompanyByName: jest.fn(),
@@ -44,63 +46,80 @@ describe('CompanyPostingsService', () => {
       getCompanyNameById: jest.fn(),
     } as jest.Mocked<ICompaniesRepository>;
 
+    mockPostingsRepo = {
+      getPostings: jest.fn(),
+      createPosting: jest.fn(),
+    } as jest.Mocked<IPostingsRepository>;
+
     container.register(TOKENS.ICompaniesRepository, {
       useValue: mockCompaniesRepo,
     });
+    container.register(TOKENS.IPostingsRepository, {
+      useValue: mockPostingsRepo,
+    });
+
     service = container.resolve(CompanyPostingsService);
   });
 
   afterEach(() => {
-    mockAxios.reset();
     jest.clearAllMocks();
   });
 
   describe('getPostings', () => {
     it('should return filtered postings with company names', async () => {
-      mockAxios
-        .onGet(config.postingApiUrl)
-        .reply(200, { postings: mockPostings });
-      mockCompaniesRepo.getCompanyById
-        .mockResolvedValueOnce({ id: '1', name: 'ACCELERATE SHIPPING' })
-        .mockResolvedValueOnce({ id: '2', name: 'BARTER SHIPPING' });
-
-      const result = await service.getPostings({
-        equipmentType: 'Reefer',
+      mockPostingsRepo.getPostings.mockResolvedValue(mockPostings);
+      mockCompaniesRepo.getCompanyById.mockResolvedValueOnce({
+        id: '1',
+        name: 'ACCELERATE SHIPPING',
       });
 
+      const result = await service.getPostings({ equipmentType: 'Reefer' });
+
+      expect(mockPostingsRepo.getPostings).toHaveBeenCalled();
       expect(result).toEqual([
         {
           companyName: 'ACCELERATE SHIPPING',
           freight: mockPostings[0].freight,
         },
-      ]);
+      ] satisfies CompanyPosting[]);
       expect(mockCompaniesRepo.getCompanyById).toHaveBeenCalledWith('1');
     });
 
     it('should handle empty filters', async () => {
-      mockAxios
-        .onGet(config.postingApiUrl)
-        .reply(200, { postings: mockPostings });
+      mockPostingsRepo.getPostings.mockResolvedValue(mockPostings);
       mockCompaniesRepo.getCompanyById
         .mockResolvedValueOnce({ id: '1', name: 'ACCELERATE SHIPPING' })
         .mockResolvedValueOnce({ id: '2', name: 'BARTER SHIPPING' });
 
       const result = await service.getPostings({});
 
+      expect(mockPostingsRepo.getPostings).toHaveBeenCalled();
       expect(result).toHaveLength(2);
-      expect(result[0].companyName).toBe('ACCELERATE SHIPPING');
-      expect(result[1].companyName).toBe('BARTER SHIPPING');
+      expect(result).toEqual([
+        {
+          companyName: 'ACCELERATE SHIPPING',
+          freight: mockPostings[0].freight,
+        },
+        {
+          companyName: 'BARTER SHIPPING',
+          freight: mockPostings[1].freight,
+        },
+      ] satisfies CompanyPosting[]);
     });
 
     it('should use N/A for missing company', async () => {
-      mockAxios
-        .onGet(config.postingApiUrl)
-        .reply(200, { postings: [mockPostings[0]] });
+      mockPostingsRepo.getPostings.mockResolvedValue([mockPostings[0]]);
       mockCompaniesRepo.getCompanyById.mockResolvedValueOnce(undefined);
 
       const result = await service.getPostings({});
 
-      expect(result[0].companyName).toBe('N/A');
+      expect(mockPostingsRepo.getPostings).toHaveBeenCalled();
+      expect(result).toEqual([
+        {
+          companyName: 'N/A',
+          freight: mockPostings[0].freight,
+        },
+      ] satisfies CompanyPosting[]);
     });
   });
 
@@ -110,9 +129,9 @@ describe('CompanyPostingsService', () => {
         id: '1',
         name: 'ACCELERATE SHIPPING',
       });
-      mockAxios.onPost(config.postingApiUrl).reply(200);
+      mockPostingsRepo.createPosting.mockResolvedValue(undefined);
 
-      const data = {
+      const data: CompanyPostingCreateInput = {
         companyName: 'ACCELERATE SHIPPING',
         freight: {
           weightPounds: 100,
@@ -123,15 +142,19 @@ describe('CompanyPostingsService', () => {
       };
 
       await expect(service.createPosting(data)).resolves.toBeUndefined();
-      expect(mockAxios.history.post[0].data).toBe(
-        JSON.stringify({ companyId: '1', freight: data.freight })
+      expect(mockCompaniesRepo.getCompanyByName).toHaveBeenCalledWith(
+        'ACCELERATE SHIPPING'
       );
+      expect(mockPostingsRepo.createPosting).toHaveBeenCalledWith({
+        companyId: '1',
+        freight: data.freight,
+      } satisfies Posting);
     });
 
     it('should throw error for non-existent company', async () => {
       mockCompaniesRepo.getCompanyByName.mockResolvedValue(undefined);
 
-      const data = {
+      const data: CompanyPostingCreateInput = {
         companyName: 'NONEXISTENT',
         freight: {
           weightPounds: 100,
@@ -144,6 +167,10 @@ describe('CompanyPostingsService', () => {
       await expect(service.createPosting(data)).rejects.toThrow(
         'Company not found: NONEXISTENT'
       );
+      expect(mockCompaniesRepo.getCompanyByName).toHaveBeenCalledWith(
+        'NONEXISTENT'
+      );
+      expect(mockPostingsRepo.createPosting).not.toHaveBeenCalled();
     });
   });
 });
