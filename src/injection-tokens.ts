@@ -1,7 +1,7 @@
 import { InjectionToken } from 'tsyringe';
 
-import { ICompaniesRepository } from '@/types/companies.types';
-import { ICompanyPostingsService } from '@/types/company-postings.types';
+import { ICompaniesRepository } from '@/interfaces/companies.interfaces';
+import { ICompanyPostingsService } from '@/interfaces/company-postings.interfaces';
 import { CompanyDB } from '@/mocks/company.db';
 
 export const TOKENS = {

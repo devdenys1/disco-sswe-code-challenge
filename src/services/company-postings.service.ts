@@ -2,15 +2,15 @@ import { injectable, inject } from 'tsyringe';
 import axios from 'axios';
 
 import { config } from '@/config';
-import {
-  ICompanyPostingsService,
-  CompanyPostingDTO,
-  GetCompanyPostingsDTO,
-  CreateCompanyPostingDTO,
-  PostingDTO,
-} from '@/types/company-postings.types';
-import { ICompaniesRepository } from '@/types/companies.types';
 import { TOKENS } from '@/injection-tokens';
+import {
+  CompanyPosting,
+  CompanyPostingFilters,
+  CompanyPostingCreateInput,
+} from '@/domain/company-postings.domain';
+import { Posting } from '@/domain/postings.domain';
+import { ICompanyPostingsService } from '@/interfaces/company-postings.interfaces';
+import { ICompaniesRepository } from '@/interfaces/companies.interfaces';
 
 import { NotFoundError } from './company-postings.errors';
 
@@ -21,19 +21,19 @@ export class CompanyPostingsService implements ICompanyPostingsService {
     private companiesRepository: ICompaniesRepository
   ) {}
 
-  async getPostings(data: GetCompanyPostingsDTO): Promise<CompanyPostingDTO[]> {
+  async getPostings(filters: CompanyPostingFilters): Promise<CompanyPosting[]> {
     const {
       data: { postings },
-    } = await axios.get<{ postings: PostingDTO[] }>(config.postingApiUrl);
+    } = await axios.get<{ postings: Posting[] }>(config.postingApiUrl);
 
     const filtered = postings.filter((posting) => {
       const matchesEquipment =
-        !data.filters.equipmentType ||
-        posting.freight.equipmentType === data.filters.equipmentType;
+        !filters.equipmentType ||
+        posting.freight.equipmentType === filters.equipmentType;
 
       const matchesFullPartial =
-        !data.filters.fullPartial ||
-        posting.freight.fullPartial === data.filters.fullPartial;
+        !filters.fullPartial ||
+        posting.freight.fullPartial === filters.fullPartial;
 
       return matchesEquipment && matchesFullPartial;
     });
@@ -57,7 +57,7 @@ export class CompanyPostingsService implements ICompanyPostingsService {
     );
   }
 
-  async createPosting(data: CreateCompanyPostingDTO): Promise<void> {
+  async createPosting(data: CompanyPostingCreateInput): Promise<void> {
     const company = await this.companiesRepository.getCompanyByName(
       data.companyName
     );
@@ -66,7 +66,7 @@ export class CompanyPostingsService implements ICompanyPostingsService {
       throw new NotFoundError(`Company not found: ${data.companyName}`);
     }
 
-    const postingData: PostingDTO = {
+    const postingData: Posting = {
       companyId: company.id,
       freight: data.freight,
     };

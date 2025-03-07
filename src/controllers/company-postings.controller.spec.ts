@@ -2,7 +2,7 @@ import { container } from 'tsyringe';
 import { mock } from 'jest-mock-extended';
 
 import { CompanyPostingsController } from '@/controllers/company-postings.controller';
-import { ICompanyPostingsService } from '@/types/company-postings.types';
+import { ICompanyPostingsService } from '@/interfaces/company-postings.interfaces';
 import { NotFoundError } from '@/services/company-postings.errors';
 import { TOKENS } from '@/injection-tokens';
 
@@ -47,7 +47,8 @@ describe('CompanyPostingsController', () => {
       await controller.get(req, res);
 
       expect(mockService.getPostings).toHaveBeenCalledWith({
-        filters: { equipmentType: 'Reefer', fullPartial: undefined },
+        equipmentType: 'Reefer',
+        fullPartial: undefined,
       });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(mockPostings);

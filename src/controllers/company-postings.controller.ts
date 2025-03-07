@@ -3,11 +3,14 @@ import { z } from 'zod';
 import { Request, Response } from 'express';
 
 import {
-  ICompanyPostingsService,
-  GetCompanyPostingsDTO,
   CreateCompanyPostingDTO,
   createCompanyPostingSchema,
-} from '@/types/company-postings.types';
+} from '@/dto/company-postings.dto';
+import {
+  CompanyPostingCreateInput,
+  CompanyPostingFilters,
+} from '@/domain/company-postings.domain';
+import { ICompanyPostingsService } from '@/interfaces/company-postings.interfaces';
 import { NotFoundError } from '@/services/company-postings.errors';
 import { TOKENS } from '@/injection-tokens';
 
@@ -15,18 +18,16 @@ import { TOKENS } from '@/injection-tokens';
 export class CompanyPostingsController {
   constructor(
     @inject(TOKENS.ICompanyPostingsService)
-    private service: ICompanyPostingsService
+    private companyPostingsService: ICompanyPostingsService
   ) {}
 
   async get(req: Request, res: Response): Promise<void> {
     try {
-      const filters: GetCompanyPostingsDTO = {
-        filters: {
-          equipmentType: req.query.equipmentType as string | undefined,
-          fullPartial: req.query.fullPartial as string | undefined,
-        },
+      const filters: CompanyPostingFilters = {
+        equipmentType: req.query.equipmentType as string | undefined,
+        fullPartial: req.query.fullPartial as string | undefined,
       };
-      const postings = await this.service.getPostings(filters);
+      const postings = await this.companyPostingsService.getPostings(filters);
       res.status(200).json(postings);
     } catch (error) {
       console.error(error);
@@ -36,10 +37,23 @@ export class CompanyPostingsController {
 
   async post(req: Request, res: Response): Promise<void> {
     try {
-      const data = createCompanyPostingSchema.parse(
+      const data: CreateCompanyPostingDTO = createCompanyPostingSchema.parse(
         req.body
-      ) as CreateCompanyPostingDTO;
-      await this.service.createPosting(data);
+      );
+
+      const companyPostingCreateInput: CompanyPostingCreateInput = {
+        companyName: data.companyName,
+        freight: {
+          weightPounds: data.freight.weightPounds,
+          equipmentType: data.freight.equipmentType,
+          fullPartial: data.freight.fullPartial,
+          lengthFeet: data.freight.lengthFeet,
+        },
+      };
+
+      await this.companyPostingsService.createPosting(
+        companyPostingCreateInput
+      );
       res.status(201).send();
     } catch (error) {
       if (error instanceof z.ZodError) {

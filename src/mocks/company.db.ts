@@ -1,13 +1,14 @@
 import loki from 'lokijs';
-import { Company } from '../repositories/company.model';
+
+import { CompanyModel } from '@/repositories/company.model';
 
 export class CompanyDB {
   private db: loki;
 
   constructor() {
     this.db = new loki('companies.db');
-    const companies: Collection<Company> =
-      this.db.addCollection<Company>('companies');
+    const companies: Collection<CompanyModel> =
+      this.db.addCollection<CompanyModel>('companies');
 
     [
       { id: '1', name: 'ACCELERATE SHIPPING' },
@@ -44,14 +45,15 @@ export class CompanyDB {
     });
   }
 
-  getCompanyCollection(): Collection<Company> {
+  getCompanyCollection(): Collection<CompanyModel> {
     return this.db.getCollection('companies');
   }
 
-  getCompanyById(id: string): Company | undefined {
-    const companies: Collection<Company> = this.db.getCollection('companies');
+  getCompanyById(id: string): CompanyModel | undefined {
+    const companies: Collection<CompanyModel> =
+      this.db.getCollection('companies');
     const result = companies.findOne({ id: id });
     // TODO: Handle null result
-    return result as Company;
+    return result as CompanyModel;
   }
 }

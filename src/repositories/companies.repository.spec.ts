@@ -2,14 +2,14 @@ import { container } from 'tsyringe';
 
 import { CompaniesRepository } from '@/repositories/companies.repository';
 import { CompanyDB } from '@/mocks/company.db';
-import { Company } from '@/repositories/company.model';
+import { CompanyModel } from '@/repositories/company.model';
 import { TOKENS } from '@/injection-tokens';
 
 describe('CompaniesRepository', () => {
   let repository: CompaniesRepository;
   let mockCompanyDB: jest.Mocked<CompanyDB>;
 
-  const mockCompanies: Company[] = [
+  const mockCompanies: CompanyModel[] = [
     { id: '1', name: 'ACCELERATE SHIPPING' },
     { id: '2', name: 'BARTER SHIPPING' },
   ];
@@ -64,7 +64,10 @@ describe('CompaniesRepository', () => {
 
   describe('getCompanyById', () => {
     it('should return a CompanyDTO for a valid company ID', async () => {
-      const mockCompany: Company = { id: '1', name: 'ACCELERATE SHIPPING' };
+      const mockCompany: CompanyModel = {
+        id: '1',
+        name: 'ACCELERATE SHIPPING',
+      };
       mockCompanyDB.getCompanyById.mockReturnValue(mockCompany);
 
       const result = await repository.getCompanyById('1');

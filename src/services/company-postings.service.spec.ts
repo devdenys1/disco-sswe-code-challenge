@@ -4,8 +4,8 @@ import MockAdapter from 'axios-mock-adapter';
 
 import { config } from '@/config';
 import { CompanyPostingsService } from '@/services/company-postings.service';
-import { ICompaniesRepository } from '@/types/companies.types';
-import { PostingDTO } from '@/types/company-postings.types';
+import { Posting } from '@/domain/postings.domain';
+import { ICompaniesRepository } from '@/interfaces/companies.interfaces';
 import { TOKENS } from '@/injection-tokens';
 
 describe('CompanyPostingsService', () => {
@@ -13,7 +13,7 @@ describe('CompanyPostingsService', () => {
   let mockAxios: MockAdapter;
   let mockCompaniesRepo: jest.Mocked<ICompaniesRepository>;
 
-  const mockPostings: PostingDTO[] = [
+  const mockPostings: Posting[] = [
     {
       companyId: '1',
       freight: {
@@ -65,7 +65,7 @@ describe('CompanyPostingsService', () => {
         .mockResolvedValueOnce({ id: '2', name: 'BARTER SHIPPING' });
 
       const result = await service.getPostings({
-        filters: { equipmentType: 'Reefer' },
+        equipmentType: 'Reefer',
       });
 
       expect(result).toEqual([
@@ -85,7 +85,7 @@ describe('CompanyPostingsService', () => {
         .mockResolvedValueOnce({ id: '1', name: 'ACCELERATE SHIPPING' })
         .mockResolvedValueOnce({ id: '2', name: 'BARTER SHIPPING' });
 
-      const result = await service.getPostings({ filters: {} });
+      const result = await service.getPostings({});
 
       expect(result).toHaveLength(2);
       expect(result[0].companyName).toBe('ACCELERATE SHIPPING');
@@ -98,7 +98,7 @@ describe('CompanyPostingsService', () => {
         .reply(200, { postings: [mockPostings[0]] });
       mockCompaniesRepo.getCompanyById.mockResolvedValueOnce(undefined);
 
-      const result = await service.getPostings({ filters: {} });
+      const result = await service.getPostings({});
 
       expect(result[0].companyName).toBe('N/A');
     });
