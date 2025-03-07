@@ -9,14 +9,18 @@ import { CompaniesRepository } from '@/repositories/companies.repository';
 import { CompanyPostingsService } from '@/services/company-postings.service';
 import { CompanyPostingsController } from '@/controllers/company-postings.controller';
 
+import { TOKENS } from './injection-tokens';
+
 if (!config.isProduction) {
   console.log('Starting mock Posting API server');
   postingAPIServer();
 }
 
-container.register('CompanyDB', { useClass: CompanyDB });
-container.register('ICompaniesRepository', { useClass: CompaniesRepository });
-container.register('ICompanyPostingsService', {
+container.register(TOKENS.CompanyDB, { useClass: CompanyDB });
+container.register(TOKENS.ICompaniesRepository, {
+  useClass: CompaniesRepository,
+});
+container.register(TOKENS.ICompanyPostingsService, {
   useClass: CompanyPostingsService,
 });
 

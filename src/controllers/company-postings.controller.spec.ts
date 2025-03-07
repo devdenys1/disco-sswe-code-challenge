@@ -4,6 +4,7 @@ import { mock } from 'jest-mock-extended';
 import { CompanyPostingsController } from '@/controllers/company-postings.controller';
 import { ICompanyPostingsService } from '@/types/company-postings.types';
 import { NotFoundError } from '@/services/company-postings.errors';
+import { TOKENS } from '@/injection-tokens';
 
 describe('CompanyPostingsController', () => {
   let controller: CompanyPostingsController;
@@ -24,7 +25,9 @@ describe('CompanyPostingsController', () => {
   beforeEach(() => {
     container.clearInstances();
     mockService = mock<ICompanyPostingsService>();
-    container.register('ICompanyPostingsService', { useValue: mockService });
+    container.register(TOKENS.ICompanyPostingsService, {
+      useValue: mockService,
+    });
     controller = container.resolve(CompanyPostingsController);
   });
 

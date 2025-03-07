@@ -6,6 +6,7 @@ import { config } from '@/config';
 import { CompanyPostingsService } from '@/services/company-postings.service';
 import { ICompaniesRepository } from '@/types/companies.types';
 import { PostingDTO } from '@/types/company-postings.types';
+import { TOKENS } from '@/injection-tokens';
 
 describe('CompanyPostingsService', () => {
   let service: CompanyPostingsService;
@@ -43,7 +44,9 @@ describe('CompanyPostingsService', () => {
       getCompanyNameById: jest.fn(),
     } as jest.Mocked<ICompaniesRepository>;
 
-    container.register('ICompaniesRepository', { useValue: mockCompaniesRepo });
+    container.register(TOKENS.ICompaniesRepository, {
+      useValue: mockCompaniesRepo,
+    });
     service = container.resolve(CompanyPostingsService);
   });
 

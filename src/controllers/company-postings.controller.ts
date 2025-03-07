@@ -9,11 +9,13 @@ import {
   createCompanyPostingSchema,
 } from '@/types/company-postings.types';
 import { NotFoundError } from '@/services/company-postings.errors';
+import { TOKENS } from '@/injection-tokens';
 
 @injectable()
 export class CompanyPostingsController {
   constructor(
-    @inject('ICompanyPostingsService') private service: ICompanyPostingsService
+    @inject(TOKENS.ICompanyPostingsService)
+    private service: ICompanyPostingsService
   ) {}
 
   async get(req: Request, res: Response): Promise<void> {

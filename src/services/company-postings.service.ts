@@ -10,13 +10,14 @@ import {
   PostingDTO,
 } from '@/types/company-postings.types';
 import { ICompaniesRepository } from '@/types/companies.types';
+import { TOKENS } from '@/injection-tokens';
 
 import { NotFoundError } from './company-postings.errors';
 
 @injectable()
 export class CompanyPostingsService implements ICompanyPostingsService {
   constructor(
-    @inject('ICompaniesRepository')
+    @inject(TOKENS.ICompaniesRepository)
     private companiesRepository: ICompaniesRepository
   ) {}
 

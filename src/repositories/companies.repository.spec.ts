@@ -3,6 +3,7 @@ import { container } from 'tsyringe';
 import { CompaniesRepository } from '@/repositories/companies.repository';
 import { CompanyDB } from '@/mocks/company.db';
 import { Company } from '@/repositories/company.model';
+import { TOKENS } from '@/injection-tokens';
 
 describe('CompaniesRepository', () => {
   let repository: CompaniesRepository;
@@ -21,7 +22,7 @@ describe('CompaniesRepository', () => {
       getCompanyById: jest.fn(),
     } as unknown as jest.Mocked<CompanyDB>;
 
-    container.register('CompanyDB', { useValue: mockCompanyDB });
+    container.register(TOKENS.CompanyDB, { useValue: mockCompanyDB });
 
     repository = container.resolve(CompaniesRepository);
   });

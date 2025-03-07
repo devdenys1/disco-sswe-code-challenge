@@ -3,12 +3,13 @@ import { injectable, inject } from 'tsyringe';
 import { ICompaniesRepository } from '@/types/companies.types';
 import { CompanyDB } from '@/mocks/company.db';
 import { CompanyDTO } from '@/types/companies.types';
+import { TOKENS } from '@/injection-tokens';
 
 import { Company } from './company.model';
 
 @injectable()
 export class CompaniesRepository implements ICompaniesRepository {
-  constructor(@inject('CompanyDB') private companyDB: CompanyDB) {}
+  constructor(@inject(TOKENS.CompanyDB) private companyDB: CompanyDB) {}
 
   private mapToDTO(model: Company): CompanyDTO {
     return {

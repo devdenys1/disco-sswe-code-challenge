@@ -7,6 +7,7 @@ import { CompanyPostingsService } from '@/services/company-postings.service';
 import { CompaniesRepository } from '@/repositories/companies.repository';
 import { CompanyDB } from '@/mocks/company.db';
 import postingAPIServer from '@/mocks/posting-api-mock-server';
+import { TOKENS } from '@/injection-tokens';
 
 describe('CompanyPostings API Integration', () => {
   let app: express.Express;
@@ -15,11 +16,11 @@ describe('CompanyPostings API Integration', () => {
   beforeAll(async () => {
     postingAPIServer();
 
-    container.register('CompanyDB', { useClass: CompanyDB });
-    container.register('ICompaniesRepository', {
+    container.register(TOKENS.CompanyDB, { useClass: CompanyDB });
+    container.register(TOKENS.ICompaniesRepository, {
       useClass: CompaniesRepository,
     });
-    container.register('ICompanyPostingsService', {
+    container.register(TOKENS.ICompanyPostingsService, {
       useClass: CompanyPostingsService,
     });
 
